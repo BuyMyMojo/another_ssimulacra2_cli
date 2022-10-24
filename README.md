@@ -1,5 +1,7 @@
 # Another ssimulacra2 cli
 
+[![Building](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml/badge.svg)](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml)
+
 A fork of ssimulacra2_bin that I could not stop adding things to. *whoops*
 
 <!-- [![Crates.io](https://img.shields.io/crates/v/ssimulacra2_rs?style=for-the-badge)](https://crates.io/crates/ssimulacra2_rs) -->
@@ -7,7 +9,7 @@ A fork of ssimulacra2_bin that I could not stop adding things to. *whoops*
 
 Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2>
 
-## usage:
+## usage
 
 ```bash
 Another ssimulacra2 cli
