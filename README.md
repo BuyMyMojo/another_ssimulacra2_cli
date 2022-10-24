@@ -35,6 +35,8 @@ Arguments:
   [OUT]        Output folder or `.csv` file. Requires --folders
 
 Options:
+  -t, --threads <THREADS>
+          Choose how many cpu threads to use. defaults to your core count!
   -f, --folders
           If input paths are folders, process all images in the folders. This assumes the files are named the same in both folders.
       --colour-space <COLOUR_SPACE>
