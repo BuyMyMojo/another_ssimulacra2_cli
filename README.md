@@ -22,6 +22,8 @@ then you can just execute `as2c` from your terminal.
 
 ## usage
 
+[Supported image formats](https://github.com/image-rs/image/blob/master/README.md#supported-image-formats)
+
 ```bash
 Another ssimulacra2 cli
 
