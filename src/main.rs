@@ -60,98 +60,103 @@ fn main() {
         .build()
         .unwrap()
         .block_on(async {
+            // convert args.colour_space to ColorPrimaries
+            let colour_space = match args.colour_space {
+                ColourSpace::BT709 => ColorPrimaries::BT709,
+                ColourSpace::BT470M => ColorPrimaries::BT470M,
+                ColourSpace::BT470BG => ColorPrimaries::BT470BG,
+                ColourSpace::ST170M => ColorPrimaries::ST170M,
+                ColourSpace::ST240M => ColorPrimaries::ST240M,
+                ColourSpace::Film => ColorPrimaries::Film,
+                ColourSpace::BT2020 => ColorPrimaries::BT2020,
+                ColourSpace::ST428 => ColorPrimaries::ST428,
+                ColourSpace::P3DCI => ColorPrimaries::P3DCI,
+                ColourSpace::P3Display => ColorPrimaries::P3Display,
+                ColourSpace::Tech3213 => ColorPrimaries::Tech3213,
+                _ => ColorPrimaries::BT709,
+            };
 
-    // convert args.colour_space to ColorPrimaries
-    let colour_space = match args.colour_space {
-        ColourSpace::BT709 => ColorPrimaries::BT709,
-        ColourSpace::BT470M => ColorPrimaries::BT470M,
-        ColourSpace::BT470BG => ColorPrimaries::BT470BG,
-        ColourSpace::ST170M => ColorPrimaries::ST170M,
-        ColourSpace::ST240M => ColorPrimaries::ST240M,
-        ColourSpace::Film => ColorPrimaries::Film,
-        ColourSpace::BT2020 => ColorPrimaries::BT2020,
-        ColourSpace::ST428 => ColorPrimaries::ST428,
-        ColourSpace::P3DCI => ColorPrimaries::P3DCI,
-        ColourSpace::P3Display => ColorPrimaries::P3Display,
-        ColourSpace::Tech3213 => ColorPrimaries::Tech3213,
-        _ => ColorPrimaries::BT709,
-    };
+            // convert args.colour_transfer to TransferCharacteristic
+            let colour_transfer = match args.colour_transfer {
+                ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
+                ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
+                ColourTransferCharacteristic::BT470BG => TransferCharacteristic::BT470BG,
+                ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
+                ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
+                ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
+                ColourTransferCharacteristic::Logarithmic100 => {
+                    TransferCharacteristic::Logarithmic100
+                }
+                ColourTransferCharacteristic::Logarithmic316 => {
+                    TransferCharacteristic::Logarithmic316
+                }
+                ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
+                ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
+                ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
+                ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
+                ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
+                ColourTransferCharacteristic::PerceptualQuantizer => {
+                    TransferCharacteristic::PerceptualQuantizer
+                }
+                ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
+                ColourTransferCharacteristic::HybridLogGamma => {
+                    TransferCharacteristic::HybridLogGamma
+                }
+                _ => TransferCharacteristic::SRGB,
+            };
 
-    // convert args.colour_transfer to TransferCharacteristic
-    let colour_transfer = match args.colour_transfer {
-        ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
-        ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
-        ColourTransferCharacteristic::BT470BG => TransferCharacteristic::BT470BG,
-        ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
-        ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
-        ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
-        ColourTransferCharacteristic::Logarithmic100 => TransferCharacteristic::Logarithmic100,
-        ColourTransferCharacteristic::Logarithmic316 => TransferCharacteristic::Logarithmic316,
-        ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
-        ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
-        ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
-        ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
-        ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
-        ColourTransferCharacteristic::PerceptualQuantizer => {
-            TransferCharacteristic::PerceptualQuantizer
-        }
-        ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
-        ColourTransferCharacteristic::HybridLogGamma => TransferCharacteristic::HybridLogGamma,
-        _ => TransferCharacteristic::SRGB,
-    };
-
-    if !args.folders {
-        let result = process(args.source, args.distorted, colour_transfer, colour_space);
-        println!("{result:.8}");
-    } else {
-        // args get's moved into handle_folder, so we need to clone `out`
-        let out_clone = args.out.clone();
-
-        let mut results = handle_folder(args, colour_transfer, colour_space).await;
-
-        // Sort by frame number
-        results.sort_by(|a, b| a.frame.cmp(&b.frame));
-
-        // Print Mean, min, max
-        println!(
-            "Min: {}",
-            results
-                .iter()
-                .map(|r| r.ssimulacra2)
-                .min_by(|a, b| a.partial_cmp(b).unwrap())
-                .unwrap()
-        );
-        println!(
-            "Max: {}",
-            results
-                .iter()
-                .map(|r| r.ssimulacra2)
-                .max_by(|a, b| a.partial_cmp(b).unwrap())
-                .unwrap()
-        );
-        println!(
-            "Mean: {}",
-            results.iter().map(|r| r.ssimulacra2).sum::<f64>() / results.len() as f64
-        );
-
-        // Print CSV
-        if let Some(out) = out_clone {
-            let mut csv = String::new();
-            csv.push_str("frame,ssimulacra2\n");
-            for result in results {
-                csv.push_str(&format!("{},{}\n", result.frame, result.ssimulacra2));
-            }
-            // check if `out` is a directory
-            if Path::new(&out).is_dir() {
-                let mut path = Path::new(&out).to_path_buf();
-                path.push("ssimulacra2.csv");
-                fs::write(path, csv).expect("Unable to write file");
+            if !args.folders {
+                let result = process(args.source, args.distorted, colour_transfer, colour_space);
+                println!("{result:.8}");
             } else {
-                fs::write(out, csv).expect("Unable to write file");
+                // args get's moved into handle_folder, so we need to clone `out`
+                let out_clone = args.out.clone();
+
+                let mut results = handle_folder(args, colour_transfer, colour_space).await;
+
+                // Sort by frame number
+                results.sort_by(|a, b| a.frame.cmp(&b.frame));
+
+                // Print Mean, min, max
+                println!(
+                    "Min: {}",
+                    results
+                        .iter()
+                        .map(|r| r.ssimulacra2)
+                        .min_by(|a, b| a.partial_cmp(b).unwrap())
+                        .unwrap()
+                );
+                println!(
+                    "Max: {}",
+                    results
+                        .iter()
+                        .map(|r| r.ssimulacra2)
+                        .max_by(|a, b| a.partial_cmp(b).unwrap())
+                        .unwrap()
+                );
+                println!(
+                    "Mean: {}",
+                    results.iter().map(|r| r.ssimulacra2).sum::<f64>() / results.len() as f64
+                );
+
+                // Print CSV
+                if let Some(out) = out_clone {
+                    let mut csv = String::new();
+                    csv.push_str("frame,ssimulacra2\n");
+                    for result in results {
+                        csv.push_str(&format!("{},{}\n", result.frame, result.ssimulacra2));
+                    }
+                    // check if `out` is a directory
+                    if Path::new(&out).is_dir() {
+                        let mut path = Path::new(&out).to_path_buf();
+                        path.push("ssimulacra2.csv");
+                        fs::write(path, csv).expect("Unable to write file");
+                    } else {
+                        fs::write(out, csv).expect("Unable to write file");
+                    }
+                }
             }
-        }
-    }
-    })
+        })
 }
 
 /// Processes a single image pair
