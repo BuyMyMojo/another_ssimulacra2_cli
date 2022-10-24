@@ -4,10 +4,21 @@
 
 A fork of ssimulacra2_bin that I could not stop adding things to. *whoops*
 
-<!-- [![Crates.io](https://img.shields.io/crates/v/ssimulacra2_rs?style=for-the-badge)](https://crates.io/crates/ssimulacra2_rs) -->
-<!-- [![LICENSE](https://img.shields.io/crates/l/ssimulacra2_rs?style=for-the-badge)](https://github.com/rust-av/ssimulacra2_bin/blob/main/LICENSE) -->
+Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2
 
-Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2>
+## Download
+
+Get the latest executable from the automated [release build action](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml)
+
+## Install
+
+To install with cargo just run:
+
+```bash
+cargo install --path .
+```
+
+then you can just execute `as2c` from your terminal.
 
 ## usage
 
