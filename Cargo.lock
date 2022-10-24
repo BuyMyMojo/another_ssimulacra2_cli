@@ -42,6 +42,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "as2c"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "futures",
+ "image",
+ "progress_bar",
+ "ssimulacra2",
+ "tokio",
+ "yuvxyb",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -934,19 +947,6 @@ dependencies = [
  "nalgebra",
  "num-traits",
  "wide",
- "yuvxyb",
-]
-
-[[package]]
-name = "ssimulacra2_rs"
-version = "0.1.0"
-dependencies = [
- "clap",
- "futures",
- "image",
- "progress_bar",
- "ssimulacra2",
- "tokio",
  "yuvxyb",
 ]
 

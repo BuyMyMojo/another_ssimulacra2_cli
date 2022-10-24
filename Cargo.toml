@@ -1,8 +1,8 @@
 [package]
-name = "ssimulacra2_rs"
+name = "as2c"
 version = "0.1.0"
 edition = "2021"
-description = "Binary exposing the ssimulacra2 rust implementation"
+description = "Another ssimulacra2 cli"
 repository = "https://github.com/rust-av/ssimulacra2_bin"
 homepage = "https://github.com/rust-av/ssimulacra2_bin"
 license = "BSD-2-Clause"
