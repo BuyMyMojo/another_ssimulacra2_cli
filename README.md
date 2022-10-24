@@ -129,3 +129,7 @@ PerceptualQuantizer
 ST428
 HybridLogGamma
 ```
+
+## Memory usage
+
+On my 5600x when comparing two folders of 1440p PNG files it can use 3-4GB of ram since it basically has 12 pairs of raw 1440p images in memory.
