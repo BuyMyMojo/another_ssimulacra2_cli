@@ -6,6 +6,8 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yuvxyb::Rgb;
 
+// TODO: Add proper error handling
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -20,6 +22,10 @@ struct Args {
     /// Location to output a .csv file with the ssimumulacra2 values
     #[arg(help = "Output folder or `.csv` file. Requires --folders", value_hint = clap::ValueHint::FilePath, requires = "folders")]
     out: Option<String>,
+
+    /// Choose how many cpu threads to use. defaults to your core count!
+    #[arg(long, short)]
+    threads: Option<usize>,
 
     // TODO: Change help text to something more useful
     /// If input paths are folders, process all images in the folders
@@ -39,9 +45,21 @@ struct Args {
     colour_transfer: ColourTransferCharacteristic,
 }
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() {
+fn main() {
     let args = Args::parse();
+
+    let mut threads = num_cpus::get();
+
+    if args.threads.is_some() {
+        threads = args.threads.unwrap();
+    }
+
+    tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(threads)
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
 
     // convert args.colour_space to ColorPrimaries
     let colour_space = match args.colour_space {
@@ -133,6 +151,7 @@ async fn main() {
             }
         }
     }
+    })
 }
 
 /// Processes a single image pair
