@@ -21,3 +21,8 @@ yuvxyb = "0.1.3"
 [profile.release]
 lto = "thin"
 codegen-units = 1
+
+# For perf testing reasons
+[profile.release-full-lto]
+inherits = "release"
+lto = true
