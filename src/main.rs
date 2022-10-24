@@ -31,7 +31,7 @@ struct Args {
     folders: bool,
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() {
     let args = Args::parse();
 
