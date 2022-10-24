@@ -1,6 +1,6 @@
 [package]
 name = "as2c"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Another ssimulacra2 cli"
 repository = "https://github.com/rust-av/ssimulacra2_bin"
