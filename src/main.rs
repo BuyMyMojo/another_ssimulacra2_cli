@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use progress_bar::*;
 use ssimulacra2::{compute_frame_ssimulacra2, ColorPrimaries, TransferCharacteristic, Xyb};
 use std::fs;
@@ -18,7 +18,7 @@ struct Args {
     distorted: String,
 
     /// Location to output a .csv file with the ssimumulacra2 values
-    #[arg(help = "Output location. Requires --folders", value_hint = clap::ValueHint::FilePath, requires = "folders")]
+    #[arg(help = "Output folder or `.csv` file. Requires --folders", value_hint = clap::ValueHint::FilePath, requires = "folders")]
     out: Option<String>,
 
     // TODO: Change help text to something more useful
@@ -29,25 +29,70 @@ struct Args {
         help = "If input paths are folders, process all images in the folders. This assumes the files are named the same in both folders."
     )]
     folders: bool,
+
+    /// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html for more info
+    #[arg(long, value_enum, default_value_t = ColourSpace::BT709)]
+    colour_space: ColourSpace,
+
+    /// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html for more info
+    #[arg(long, value_enum, default_value_t = ColourTransferCharacteristic::SRGB)]
+    colour_transfer: ColourTransferCharacteristic,
 }
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
     let args = Args::parse();
 
+    // convert args.colour_space to ColorPrimaries
+    let colour_space = match args.colour_space {
+        ColourSpace::BT709 => ColorPrimaries::BT709,
+        ColourSpace::BT470M => ColorPrimaries::BT470M,
+        ColourSpace::BT470BG => ColorPrimaries::BT470BG,
+        ColourSpace::ST170M => ColorPrimaries::ST170M,
+        ColourSpace::ST240M => ColorPrimaries::ST240M,
+        ColourSpace::Film => ColorPrimaries::Film,
+        ColourSpace::BT2020 => ColorPrimaries::BT2020,
+        ColourSpace::ST428 => ColorPrimaries::ST428,
+        ColourSpace::P3DCI => ColorPrimaries::P3DCI,
+        ColourSpace::P3Display => ColorPrimaries::P3Display,
+        ColourSpace::Tech3213 => ColorPrimaries::Tech3213,
+        _ => ColorPrimaries::BT709,
+    };
+
+    // convert args.colour_transfer to TransferCharacteristic
+    let colour_transfer = match args.colour_transfer {
+        ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
+        ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
+        ColourTransferCharacteristic::BT470BG => TransferCharacteristic::BT470BG,
+        ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
+        ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
+        ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
+        ColourTransferCharacteristic::Logarithmic100 => TransferCharacteristic::Logarithmic100,
+        ColourTransferCharacteristic::Logarithmic316 => TransferCharacteristic::Logarithmic316,
+        ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
+        ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
+        ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
+        ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
+        ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
+        ColourTransferCharacteristic::PerceptualQuantizer => {
+            TransferCharacteristic::PerceptualQuantizer
+        }
+        ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
+        ColourTransferCharacteristic::HybridLogGamma => TransferCharacteristic::HybridLogGamma,
+        _ => TransferCharacteristic::SRGB,
+    };
+
     if !args.folders {
-        let result = parse(args.source, args.distorted);
+        let result = process(args.source, args.distorted, colour_transfer, colour_space);
         println!("{result:.8}");
     } else {
         // args get's moved into handle_folder, so we need to clone `out`
         let out_clone = args.out.clone();
 
-        let mut results = handle_folder(args).await;
+        let mut results = handle_folder(args, colour_transfer, colour_space).await;
 
         // Sort by frame number
         results.sort_by(|a, b| a.frame.cmp(&b.frame));
-
-        // println!("{:#?}", results);
 
         // Print Mean, min, max
         println!(
@@ -90,7 +135,13 @@ async fn main() {
     }
 }
 
-fn parse(source_path: String, distorted_path: String) -> f64 {
+/// Processes a single image pair
+fn process(
+    source_path: String,
+    distorted_path: String,
+    tc: TransferCharacteristic,
+    cp: ColorPrimaries,
+) -> f64 {
     // For now just assumes the input is sRGB. Trying to keep this as simple as possible for now.
     let source = image::open(source_path).expect("Failed to open source file");
     let distorted = image::open(distorted_path).expect("Failed to open distorted file");
@@ -106,8 +157,8 @@ fn parse(source_path: String, distorted_path: String) -> f64 {
             source_data,
             source.width() as usize,
             source.height() as usize,
-            TransferCharacteristic::SRGB,
-            ColorPrimaries::BT709,
+            tc,
+            cp,
         )
         .expect("Failed to process source_data into RGB"),
     )
@@ -124,8 +175,8 @@ fn parse(source_path: String, distorted_path: String) -> f64 {
             distorted_data,
             distorted.width() as usize,
             distorted.height() as usize,
-            TransferCharacteristic::SRGB,
-            ColorPrimaries::BT709,
+            tc,
+            cp,
         )
         .expect("Failed to process distorted_data into RGB"),
     )
@@ -135,7 +186,11 @@ fn parse(source_path: String, distorted_path: String) -> f64 {
     compute_frame_ssimulacra2(source_data, distorted_data).expect("Failed to calculate ssimulacra2")
 }
 
-async fn handle_folder(args: Args) -> Vec<FrameResult> {
+async fn handle_folder(
+    args: Args,
+    tc: TransferCharacteristic,
+    cp: ColorPrimaries,
+) -> Vec<FrameResult> {
     let files = fs::read_dir(args.source.clone()).unwrap();
 
     let results: Arc<Mutex<Vec<FrameResult>>> = Arc::new(Mutex::new(Vec::new()));
@@ -167,13 +222,15 @@ async fn handle_folder(args: Args) -> Vec<FrameResult> {
 
             let file_name = path.unwrap().file_name();
 
-            let ssimulacra2_result = parse(
+            let ssimulacra2_result = process(
                 src_path
                     .join(file_name.clone())
                     .to_str()
                     .unwrap()
                     .to_owned(),
                 dst_path.join(file_name).to_str().unwrap().to_owned(),
+                tc,
+                cp,
             );
 
             results_clone.lock().unwrap().push(FrameResult {
@@ -199,4 +256,48 @@ async fn handle_folder(args: Args) -> Vec<FrameResult> {
 struct FrameResult {
     frame: u32,
     ssimulacra2: f64,
+}
+
+/// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html for more info
+#[derive(ValueEnum, Clone, Debug)]
+enum ColourSpace {
+    Reserved0,
+    BT709,
+    Unspecified,
+    Reserved,
+    BT470M,
+    BT470BG,
+    ST170M,
+    ST240M,
+    Film,
+    BT2020,
+    ST428,
+    P3DCI,
+    P3Display,
+    Tech3213,
+}
+
+/// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html for more info
+#[derive(ValueEnum, Clone, Debug)]
+#[allow(clippy::upper_case_acronyms)]
+enum ColourTransferCharacteristic {
+    Reserved0,
+    BT1886,
+    Unspecified,
+    Reserved,
+    BT470M,
+    BT470BG,
+    ST170M,
+    ST240M,
+    Linear,
+    Logarithmic100,
+    Logarithmic316,
+    XVYCC,
+    BT1361E,
+    SRGB,
+    BT2020Ten,
+    BT2020Twelve,
+    PerceptualQuantizer,
+    ST428,
+    HybridLogGamma,
 }
