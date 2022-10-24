@@ -2,7 +2,7 @@
 
 [![Building](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml/badge.svg)](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml)
 
-A fork of ssimulacra2_bin that I could not stop adding things to. *whoops*
+A fork of [ssimulacra2_bin](https://github.com/rust-av/ssimulacra2_bin) that I could not stop adding things to. *whoops*
 
 Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2
 
