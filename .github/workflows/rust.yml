@@ -1,0 +1,49 @@
+name: Rust-release-builds
+
+on:
+  push:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  WindowsBuild:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install cross from git
+      run: cargo install cross --git https://github.com/cross-rs/cross
+    - name: Build
+      run: |
+        cross build --target=x86_64-pc-windows-gnu --release
+        mv /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/target/x86_64-pc-windows-gnu/release/as2c.exe /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c.exe
+    - name: Upload build
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: WindowsBuild
+        path: |
+          /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c.exe
+        if-no-files-found: error
+        retention-days: 2
+  
+  LinuxBuild:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: |
+        cargo build --release
+        mv /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/target/release/as2c /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c
+    - name: Upload build
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: LinuxBuild
+        path: |
+          /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c
+        if-no-files-found: error
+        retention-days: 2
