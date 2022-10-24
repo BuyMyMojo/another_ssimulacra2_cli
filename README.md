@@ -4,7 +4,7 @@
 
 A fork of [ssimulacra2_bin](https://github.com/rust-av/ssimulacra2_bin) that I could not stop adding things to. *whoops*
 
-Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2
+Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2>
 
 ## Download
 
