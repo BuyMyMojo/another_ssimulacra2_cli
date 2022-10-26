@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use progress_bar::*;
+use progress_bar::{Color, Style, finalize_progress_bar, inc_progress_bar, init_progress_bar, set_progress_bar_action};
 use ssimulacra2::{compute_frame_ssimulacra2, ColorPrimaries, TransferCharacteristic, Xyb};
 use std::fs;
 use std::path::Path;
@@ -36,11 +36,11 @@ struct Args {
     )]
     folders: bool,
 
-    /// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html for more info
+    /// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html> for more info
     #[arg(long, value_enum, default_value_t = ColourSpace::BT709)]
     colour_space: ColourSpace,
 
-    /// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html for more info
+    /// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html> for more info
     #[arg(long, value_enum, default_value_t = ColourTransferCharacteristic::SRGB)]
     colour_transfer: ColourTransferCharacteristic,
 }
@@ -48,11 +48,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let mut threads = num_cpus::get();
-
-    if args.threads.is_some() {
-        threads = args.threads.unwrap();
-    }
+    let threads = if args.threads.is_some() { args.threads.unwrap() } else { num_cpus::get() };
 
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(threads)
@@ -66,10 +62,8 @@ fn main() {
             // convert args.colour_transfer to TransferCharacteristic
             let colour_transfer = colour_transfer_to_transfer_char(&args.colour_transfer);
 
-            if !args.folders {
-                let result = process(args.source, args.distorted, colour_transfer, colour_space);
-                println!("{result:.8}");
-            } else {
+            // If not a folder process input as a single image
+            if args.folders {
                 // args get's moved into handle_folder, so we need to clone `out`
                 let out_clone = args.out.clone();
 
@@ -95,7 +89,7 @@ fn main() {
                         .max_by(|a, b| a.partial_cmp(b).unwrap())
                         .unwrap()
                 );
-                println!(
+                    println!(
                     "Mean: {}",
                     results.iter().map(|r| r.ssimulacra2).sum::<f64>() / results.len() as f64
                 );
@@ -116,8 +110,11 @@ fn main() {
                         fs::write(out, csv).expect("Unable to write file");
                     }
                 }
+            } else {
+                let result = process(args.source, args.distorted, colour_transfer, colour_space);
+                println!("{result:.8}");
             }
-        })
+        });
 }
 
 /// Processes a single image pair
@@ -185,7 +182,7 @@ async fn handle_folder(
     // TODO: This is a bit ugly, but it works. Reopen the folder and iterate over it again because count consumes the iterator.
     let len = fs::read_dir(args.source.clone()).unwrap().count();
 
-    println!("Processing {} files", len);
+    println!("Processing {len} files");
 
     let mut handles = vec![];
 
@@ -236,9 +233,8 @@ async fn handle_folder(
     x
 }
 
-fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
+const fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
     match cs {
-        ColourSpace::BT709 => ColorPrimaries::BT709,
         ColourSpace::BT470M => ColorPrimaries::BT470M,
         ColourSpace::BT470BG => ColorPrimaries::BT470BG,
         ColourSpace::ST170M => ColorPrimaries::ST170M,
@@ -253,7 +249,7 @@ fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
     }
 }
 
-fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> TransferCharacteristic {
+const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> TransferCharacteristic {
     match ct {
         ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
         ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
@@ -261,24 +257,21 @@ fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> Transf
         ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
         ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
         ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
-        ColourTransferCharacteristic::Logarithmic100 => {
-            TransferCharacteristic::Logarithmic100
-        }
-        ColourTransferCharacteristic::Logarithmic316 => {
-            TransferCharacteristic::Logarithmic316
-        }
+        ColourTransferCharacteristic::Logarithmic100 => TransferCharacteristic::Logarithmic100,
+
+        ColourTransferCharacteristic::Logarithmic316 => TransferCharacteristic::Logarithmic316,
+
         ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
         ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
-        ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
         ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
         ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
         ColourTransferCharacteristic::PerceptualQuantizer => {
             TransferCharacteristic::PerceptualQuantizer
         }
+
         ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
-        ColourTransferCharacteristic::HybridLogGamma => {
-            TransferCharacteristic::HybridLogGamma
-        }
+        ColourTransferCharacteristic::HybridLogGamma => TransferCharacteristic::HybridLogGamma,
+
         _ => TransferCharacteristic::SRGB,
     }
 }
@@ -290,7 +283,7 @@ struct FrameResult {
     ssimulacra2: f64,
 }
 
-/// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html for more info
+/// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html> for more info
 #[derive(ValueEnum, Clone, Debug)]
 enum ColourSpace {
     Reserved0,
@@ -309,7 +302,7 @@ enum ColourSpace {
     Tech3213,
 }
 
-/// https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html for more info
+/// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html> for more info
 #[derive(ValueEnum, Clone, Debug)]
 #[allow(clippy::upper_case_acronyms)]
 enum ColourTransferCharacteristic {

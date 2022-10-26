@@ -2,6 +2,13 @@
 name = "as2c"
 version = "0.1.1"
 edition = "2021"
+categories = [
+    "command-line-utilities",
+    "multimedia::images",
+    "multimedia::encoding",
+    "multimedia",
+]
+keywords = ["ssim", "ssimulacra2", "quality", "vmaf", "Butteraugli"]
 description = "Another ssimulacra2 cli"
 repository = "https://github.com/rust-av/ssimulacra2_bin"
 homepage = "https://github.com/rust-av/ssimulacra2_bin"
