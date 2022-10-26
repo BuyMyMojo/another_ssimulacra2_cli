@@ -4,6 +4,8 @@
 
 A fork of [ssimulacra2_bin](https://github.com/rust-av/ssimulacra2_bin) that I could not stop adding things to. *whoops*
 
+If you want **full video input support** check out their version, mine is going to be a little jank as it focusses on multithreaded speed.
+
 Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2>
 
 ## Download
