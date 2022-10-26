@@ -61,49 +61,10 @@ fn main() {
         .unwrap()
         .block_on(async {
             // convert args.colour_space to ColorPrimaries
-            let colour_space = match args.colour_space {
-                ColourSpace::BT709 => ColorPrimaries::BT709,
-                ColourSpace::BT470M => ColorPrimaries::BT470M,
-                ColourSpace::BT470BG => ColorPrimaries::BT470BG,
-                ColourSpace::ST170M => ColorPrimaries::ST170M,
-                ColourSpace::ST240M => ColorPrimaries::ST240M,
-                ColourSpace::Film => ColorPrimaries::Film,
-                ColourSpace::BT2020 => ColorPrimaries::BT2020,
-                ColourSpace::ST428 => ColorPrimaries::ST428,
-                ColourSpace::P3DCI => ColorPrimaries::P3DCI,
-                ColourSpace::P3Display => ColorPrimaries::P3Display,
-                ColourSpace::Tech3213 => ColorPrimaries::Tech3213,
-                _ => ColorPrimaries::BT709,
-            };
+            let colour_space = colour_space_to_color_primaries(&args.colour_space);
 
             // convert args.colour_transfer to TransferCharacteristic
-            let colour_transfer = match args.colour_transfer {
-                ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
-                ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
-                ColourTransferCharacteristic::BT470BG => TransferCharacteristic::BT470BG,
-                ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
-                ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
-                ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
-                ColourTransferCharacteristic::Logarithmic100 => {
-                    TransferCharacteristic::Logarithmic100
-                }
-                ColourTransferCharacteristic::Logarithmic316 => {
-                    TransferCharacteristic::Logarithmic316
-                }
-                ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
-                ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
-                ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
-                ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
-                ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
-                ColourTransferCharacteristic::PerceptualQuantizer => {
-                    TransferCharacteristic::PerceptualQuantizer
-                }
-                ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
-                ColourTransferCharacteristic::HybridLogGamma => {
-                    TransferCharacteristic::HybridLogGamma
-                }
-                _ => TransferCharacteristic::SRGB,
-            };
+            let colour_transfer = colour_transfer_to_transfer_char(&args.colour_transfer);
 
             if !args.folders {
                 let result = process(args.source, args.distorted, colour_transfer, colour_space);
@@ -273,6 +234,53 @@ async fn handle_folder(
 
     let x = results.lock().unwrap().to_vec();
     x
+}
+
+fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
+    match cs {
+        ColourSpace::BT709 => ColorPrimaries::BT709,
+        ColourSpace::BT470M => ColorPrimaries::BT470M,
+        ColourSpace::BT470BG => ColorPrimaries::BT470BG,
+        ColourSpace::ST170M => ColorPrimaries::ST170M,
+        ColourSpace::ST240M => ColorPrimaries::ST240M,
+        ColourSpace::Film => ColorPrimaries::Film,
+        ColourSpace::BT2020 => ColorPrimaries::BT2020,
+        ColourSpace::ST428 => ColorPrimaries::ST428,
+        ColourSpace::P3DCI => ColorPrimaries::P3DCI,
+        ColourSpace::P3Display => ColorPrimaries::P3Display,
+        ColourSpace::Tech3213 => ColorPrimaries::Tech3213,
+        _ => ColorPrimaries::BT709,
+    }
+}
+
+fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> TransferCharacteristic {
+    match ct {
+        ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
+        ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
+        ColourTransferCharacteristic::BT470BG => TransferCharacteristic::BT470BG,
+        ColourTransferCharacteristic::ST170M => TransferCharacteristic::ST170M,
+        ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
+        ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
+        ColourTransferCharacteristic::Logarithmic100 => {
+            TransferCharacteristic::Logarithmic100
+        }
+        ColourTransferCharacteristic::Logarithmic316 => {
+            TransferCharacteristic::Logarithmic316
+        }
+        ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
+        ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
+        ColourTransferCharacteristic::SRGB => TransferCharacteristic::SRGB,
+        ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
+        ColourTransferCharacteristic::BT2020Twelve => TransferCharacteristic::BT2020Twelve,
+        ColourTransferCharacteristic::PerceptualQuantizer => {
+            TransferCharacteristic::PerceptualQuantizer
+        }
+        ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
+        ColourTransferCharacteristic::HybridLogGamma => {
+            TransferCharacteristic::HybridLogGamma
+        }
+        _ => TransferCharacteristic::SRGB,
+    }
 }
 
 // struct to hold frame number and ssimulacra2 value
