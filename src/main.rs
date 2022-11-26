@@ -1,6 +1,9 @@
 use clap::Parser;
-use enums::{ColourTransferCharacteristic, ColourSpace};
-use progress_bar::{Color, Style, finalize_progress_bar, inc_progress_bar, init_progress_bar, set_progress_bar_action};
+use enums::{ColourSpace, ColourTransferCharacteristic};
+use progress_bar::{
+    finalize_progress_bar, inc_progress_bar, init_progress_bar, set_progress_bar_action, Color,
+    Style,
+};
 use ssimulacra2::{compute_frame_ssimulacra2, ColorPrimaries, TransferCharacteristic, Xyb};
 use std::fs;
 use std::path::Path;
@@ -54,7 +57,11 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let threads = if args.threads.is_some() { args.threads.unwrap() } else { num_cpus::get() };
+    let threads = if args.threads.is_some() {
+        args.threads.unwrap()
+    } else {
+        num_cpus::get()
+    };
 
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(threads)
@@ -95,7 +102,7 @@ fn main() {
                         .max_by(|a, b| a.partial_cmp(b).unwrap())
                         .unwrap()
                 );
-                    println!(
+                println!(
                     "Mean: {}",
                     results.iter().map(|r| r.ssimulacra2).sum::<f64>() / results.len() as f64
                 );
@@ -255,7 +262,9 @@ const fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
     }
 }
 
-const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> TransferCharacteristic {
+const fn colour_transfer_to_transfer_char(
+    ct: &ColourTransferCharacteristic,
+) -> TransferCharacteristic {
     match ct {
         ColourTransferCharacteristic::BT1886 => TransferCharacteristic::BT1886,
         ColourTransferCharacteristic::BT470M => TransferCharacteristic::BT470M,
@@ -264,9 +273,7 @@ const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> 
         ColourTransferCharacteristic::ST240M => TransferCharacteristic::ST240M,
         ColourTransferCharacteristic::Linear => TransferCharacteristic::Linear,
         ColourTransferCharacteristic::Logarithmic100 => TransferCharacteristic::Logarithmic100,
-
         ColourTransferCharacteristic::Logarithmic316 => TransferCharacteristic::Logarithmic316,
-
         ColourTransferCharacteristic::XVYCC => TransferCharacteristic::XVYCC,
         ColourTransferCharacteristic::BT1361E => TransferCharacteristic::BT1361E,
         ColourTransferCharacteristic::BT2020Ten => TransferCharacteristic::BT2020Ten,
@@ -274,10 +281,8 @@ const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> 
         ColourTransferCharacteristic::PerceptualQuantizer => {
             TransferCharacteristic::PerceptualQuantizer
         }
-
         ColourTransferCharacteristic::ST428 => TransferCharacteristic::ST428,
         ColourTransferCharacteristic::HybridLogGamma => TransferCharacteristic::HybridLogGamma,
-
         _ => TransferCharacteristic::SRGB,
     }
 }
@@ -288,10 +293,29 @@ mod tests {
 
     #[test]
     fn process_test() {
-        let res = process("./test_images/source.png".to_string(), "./test_images/mozjpeg_100.png".to_string(), TransferCharacteristic::SRGB, ColorPrimaries::BT709);
-        
+        let res = process(
+            "./test_images/source.png".to_string(),
+            "./test_images/mozjpeg_100.png".to_string(),
+            TransferCharacteristic::SRGB,
+            ColorPrimaries::BT709,
+        );
+
         // 91.91524120240736 was the old known value, no idea why it is a clean 100.0 now
         // 100.0 is the known result for source.png and mozjpeg_100.png
         assert_eq!(100.0, res);
+    }
+
+    #[test]
+    fn convert_colour_space() {
+        let res = colour_space_to_color_primaries(&ColourSpace::BT470M);
+
+        assert_eq!(ColorPrimaries::BT470M, res);
+    }
+
+    #[test]
+    fn convert_colour_transfer() {
+        let res = colour_transfer_to_transfer_char(&ColourTransferCharacteristic::BT1886);
+
+        assert_eq!(TransferCharacteristic::BT1886, res);
     }
 }
