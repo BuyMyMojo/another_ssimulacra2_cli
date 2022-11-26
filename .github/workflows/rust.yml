@@ -19,13 +19,13 @@ jobs:
     - name: Build
       run: |
         cross build --target=x86_64-pc-windows-gnu --release
-        mv /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/target/x86_64-pc-windows-gnu/release/as2c.exe /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c.exe
+        mv /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/target/x86_64-pc-windows-gnu/release/as2c.exe /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/as2c.exe
     - name: Upload build
       uses: actions/upload-artifact@v3.1.0
       with:
         name: WindowsBuild
         path: |
-          /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c.exe
+          /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/as2c.exe
         if-no-files-found: error
         retention-days: 2
   
@@ -38,12 +38,12 @@ jobs:
     - name: Build
       run: |
         cargo build --release
-        mv /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/target/release/as2c /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c
+        mv /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/target/release/as2c /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/as2c
     - name: Upload build
       uses: actions/upload-artifact@v3.1.0
       with:
         name: LinuxBuild
         path: |
-          /home/runner/work/ssimulacra2_bin/ssimulacra2_bin/as2c
+          /home/runner/work/another_ssimulacra2_cli/another_ssimulacra2_cli/as2c
         if-no-files-found: error
         retention-days: 2
