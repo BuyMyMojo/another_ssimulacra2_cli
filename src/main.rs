@@ -285,3 +285,16 @@ struct FrameResult {
     frame: u32,
     ssimulacra2: f64,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn process_test() {
+        let res = process("./test_images/source.png".to_string(), "./test_images/mozjpeg_100.png".to_string(), TransferCharacteristic::SRGB, ColorPrimaries::BT709);
+        
+        // 91.91524120240736 is the known result for source.png and mozjpeg_100.png
+        assert_eq!(91.91524120240736_f64, res);
+    }
+}
