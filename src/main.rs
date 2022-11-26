@@ -145,6 +145,7 @@ fn process(
     compute_frame_ssimulacra2(source_data, distorted_data).expect("Failed to calculate ssimulacra2")
 }
 
+/// Computes the SSIMulacra2 value for a a pair of folders
 async fn handle_folder(
     args: Args,
     tc: TransferCharacteristic,
@@ -217,6 +218,7 @@ mod tests {
     use super::*;
 
     #[test]
+    /// Validate the SSIMulacra2 function with a known result.
     fn process_test() {
         let res = process(
             "./test_images/source.png".to_string(),
@@ -231,6 +233,7 @@ mod tests {
     }
 
     #[test]
+    /// Validate the conversion of ColourSpace to ColorPrimaries.
     fn convert_colour_space() {
         let res = colour_space_to_color_primaries(&ColourSpace::BT470M);
 
@@ -238,6 +241,7 @@ mod tests {
     }
 
     #[test]
+    /// Validate the conversion of ColourTranferCharacteristic to TransferCharacteristic.
     fn convert_colour_transfer() {
         let res = colour_transfer_to_transfer_char(&ColourTransferCharacteristic::BT1886);
 

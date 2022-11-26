@@ -2,6 +2,7 @@ use ssimulacra2::{ColorPrimaries, TransferCharacteristic};
 
 use crate::enums::{ColourSpace, ColourTransferCharacteristic};
 
+/// Convert my ColourSpace enum to it's ColorPrimaries equivalent
 pub const fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries {
     match cs {
         ColourSpace::BT470M => ColorPrimaries::BT470M,
@@ -18,6 +19,7 @@ pub const fn colour_space_to_color_primaries(cs: &ColourSpace) -> ColorPrimaries
     }
 }
 
+/// Convert my ColourTransferCharacteristic enum to it's TransferCharacteristic equivalent
 pub const fn colour_transfer_to_transfer_char(
     ct: &ColourTransferCharacteristic,
 ) -> TransferCharacteristic {
