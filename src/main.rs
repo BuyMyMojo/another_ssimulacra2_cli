@@ -1,6 +1,5 @@
 use clap::Parser;
 use converters::{colour_space_to_color_primaries, colour_transfer_to_transfer_char};
-use enums::{ColourSpace, ColourTransferCharacteristic};
 use progress_bar::{
     finalize_progress_bar, inc_progress_bar, init_progress_bar, set_progress_bar_action, Color,
     Style,
@@ -11,50 +10,13 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yuvxyb::Rgb;
 
-use crate::structs::FrameResult;
+use structs::{FrameResult, Args};
 
 mod enums;
 mod structs;
 mod converters;
 
 // TODO: Add proper error handling
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Source image
-    #[arg(help = "Original unmodified image", value_hint = clap::ValueHint::FilePath)]
-    source: String,
-
-    /// Distorted image
-    #[arg(help = "Distorted image", value_hint = clap::ValueHint::FilePath)]
-    distorted: String,
-
-    /// Location to output a .csv file with the ssimumulacra2 values
-    #[arg(help = "Output folder or `.csv` file. Requires --folders", value_hint = clap::ValueHint::FilePath, requires = "folders")]
-    out: Option<String>,
-
-    /// Choose how many cpu threads to use. defaults to your core count!
-    #[arg(long, short)]
-    threads: Option<usize>,
-
-    // TODO: Change help text to something more useful
-    /// If input paths are folders, process all images in the folders
-    #[arg(
-        short,
-        long,
-        help = "If input paths are folders, process all images in the folders. This assumes the files are named the same in both folders."
-    )]
-    folders: bool,
-
-    /// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html> for more info
-    #[arg(long, value_enum, default_value_t = ColourSpace::BT709)]
-    colour_space: ColourSpace,
-
-    /// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html> for more info
-    #[arg(long, value_enum, default_value_t = ColourTransferCharacteristic::SRGB)]
-    colour_transfer: ColourTransferCharacteristic,
-}
 
 fn main() {
     let args = Args::parse();
@@ -250,6 +212,8 @@ async fn handle_folder(
 
 #[cfg(test)]
 mod tests {
+    use crate::enums::{ColourSpace, ColourTransferCharacteristic};
+
     use super::*;
 
     #[test]
