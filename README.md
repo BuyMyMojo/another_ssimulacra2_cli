@@ -4,23 +4,31 @@
 
 A fork of [ssimulacra2_bin](https://github.com/rust-av/ssimulacra2_bin) that I could not stop adding things to. *whoops*
 
-If you want **full video input support** check out their version, mine is going to be a little jank as it focusses on multithreaded speed.
+If you want **full ffmpeg based video support** check out their version. My version is based on folders of images and full windows compatability.
 
-Binary interface to the Rust implementation of the SSIMULACRA2 metric: <https://github.com/rust-av/ssimulacra2>
+CLI for the Rust implementation of SSIMULACRA2: <https://github.com/rust-av/ssimulacra2>
 
 ## Download
 
-Get the latest executable from the automated [release build action](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml)
+Get the release version from [here](https://github.com/BuyMyMojo/another_ssimulacra2_cli/releases)
+
+Get the requivalent of a nightly build from the [build action](https://github.com/BuyMyMojo/ssimulacra2_bin/actions/workflows/rust.yml)
 
 ## Install
 
-To install with cargo just run:
+### Cargo Crates.io
 
 ```bash
-cargo install --path .
+cargo install as2c
 ```
 
-then you can just execute `as2c` from your terminal.
+### Cargo Git
+
+```bash
+cargo install as2c --git https://github.com/BuyMyMojo/another_ssimulacra2_cli
+```
+
+then you can just run `as2c` from your terminal.
 
 ## usage
 
@@ -81,6 +89,8 @@ or just
 as2c[.exe] -f ./source/ ./compressed/ ./
 ```
 
+example csv table:
+
 | frame | ssimulacra2        |
 | ----- | ------------------ |
 | 0     | 49.924279448275605 |
@@ -137,3 +147,5 @@ HybridLogGamma
 ## Memory usage
 
 On my 5600x when comparing two folders of 1440p PNG files it can use 3-4GB of ram since it basically has 12 pairs of raw 1440p images in memory.
+
+make sure to lower the threads used with `--threads` if you run out of memory.
