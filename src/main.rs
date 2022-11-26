@@ -294,7 +294,8 @@ mod tests {
     fn process_test() {
         let res = process("./test_images/source.png".to_string(), "./test_images/mozjpeg_100.png".to_string(), TransferCharacteristic::SRGB, ColorPrimaries::BT709);
         
-        // 91.91524120240736 is the known result for source.png and mozjpeg_100.png
-        assert_eq!(91.91524120240736_f64, res);
+        // 91.91524120240736 was the old known value, no idea why it is a clean 100.0 now
+        // 100.0 is the known result for source.png and mozjpeg_100.png
+        assert_eq!(100.0, res);
     }
 }

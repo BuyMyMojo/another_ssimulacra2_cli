@@ -22,9 +22,9 @@ futures = "0.3.25"
 image = "0.24.4"
 num_cpus = "1.13.1"
 progress_bar = "1.0.3"
-ssimulacra2 = "0.1.0"
+ssimulacra2 = "0.3.0"
 tokio = { version = "1.21.2", features = ["full"] }
-yuvxyb = "0.1.5"
+yuvxyb = "0.3.0"
 
 [profile.release]
 lto = "thin"
