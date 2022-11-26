@@ -10,11 +10,11 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yuvxyb::Rgb;
 
-use structs::{FrameResult, Args};
+use structs::{Args, FrameResult};
 
+mod converters;
 mod enums;
 mod structs;
-mod converters;
 
 // TODO: Add proper error handling
 

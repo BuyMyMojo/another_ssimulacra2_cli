@@ -1,4 +1,4 @@
-use clap::{Parser, command};
+use clap::{command, Parser};
 
 use crate::enums::{ColourSpace, ColourTransferCharacteristic};
 
