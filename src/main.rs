@@ -7,7 +7,10 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yuvxyb::Rgb;
 
+use crate::structs::FrameResult;
+
 mod enums;
+mod structs;
 
 // TODO: Add proper error handling
 
@@ -277,13 +280,6 @@ const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> 
 
         _ => TransferCharacteristic::SRGB,
     }
-}
-
-// struct to hold frame number and ssimulacra2 value
-#[derive(Debug, Clone)]
-struct FrameResult {
-    frame: u32,
-    ssimulacra2: f64,
 }
 
 #[cfg(test)]
