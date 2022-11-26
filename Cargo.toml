@@ -1,6 +1,7 @@
 [package]
 name = "as2c"
-version = "0.1.1"
+version = "0.1.2"
+authors = ["BuyMyMojo <hello@buymymojo.net>", "Josh Holmer <jholmer.in@gmail.com>", "Luigi311 <git@luigi311.com>"]
 edition = "2021"
 categories = [
     "command-line-utilities",
@@ -8,11 +9,13 @@ categories = [
     "multimedia::encoding",
     "multimedia",
 ]
-keywords = ["ssim", "ssimulacra2", "quality", "vmaf", "Butteraugli"]
+keywords = ["ssim", "ssimulacra2", "metrics", "libjxl"]
 description = "Another ssimulacra2 cli"
-repository = "https://github.com/rust-av/ssimulacra2_bin"
-homepage = "https://github.com/rust-av/ssimulacra2_bin"
+repository = "https://github.com/BuyMyMojo/another_ssimulacra2_cli"
+homepage = "https://github.com/BuyMyMojo/another_ssimulacra2_cli"
 license = "BSD-2-Clause"
+exclude = ["/test_images", ".*"]
+publish = ["as2c", "another_ssimulacra2_cli"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
