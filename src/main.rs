@@ -1,10 +1,13 @@
-use clap::{Parser, ValueEnum};
+use clap::Parser;
+use enums::{ColourTransferCharacteristic, ColourSpace};
 use progress_bar::{Color, Style, finalize_progress_bar, inc_progress_bar, init_progress_bar, set_progress_bar_action};
 use ssimulacra2::{compute_frame_ssimulacra2, ColorPrimaries, TransferCharacteristic, Xyb};
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yuvxyb::Rgb;
+
+mod enums;
 
 // TODO: Add proper error handling
 
@@ -281,48 +284,4 @@ const fn colour_transfer_to_transfer_char(ct: &ColourTransferCharacteristic) -> 
 struct FrameResult {
     frame: u32,
     ssimulacra2: f64,
-}
-
-/// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.ColorPrimaries.html> for more info
-#[derive(ValueEnum, Clone, Debug)]
-enum ColourSpace {
-    Reserved0,
-    BT709,
-    Unspecified,
-    Reserved,
-    BT470M,
-    BT470BG,
-    ST170M,
-    ST240M,
-    Film,
-    BT2020,
-    ST428,
-    P3DCI,
-    P3Display,
-    Tech3213,
-}
-
-/// <https://docs.rs/av-data/0.4.1/av_data/pixel/enum.TransferCharacteristic.html> for more info
-#[derive(ValueEnum, Clone, Debug)]
-#[allow(clippy::upper_case_acronyms)]
-enum ColourTransferCharacteristic {
-    Reserved0,
-    BT1886,
-    Unspecified,
-    Reserved,
-    BT470M,
-    BT470BG,
-    ST170M,
-    ST240M,
-    Linear,
-    Logarithmic100,
-    Logarithmic316,
-    XVYCC,
-    BT1361E,
-    SRGB,
-    BT2020Ten,
-    BT2020Twelve,
-    PerceptualQuantizer,
-    ST428,
-    HybridLogGamma,
 }
